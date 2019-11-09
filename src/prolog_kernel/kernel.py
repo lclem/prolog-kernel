@@ -31,12 +31,16 @@ class PrologKernel(Kernel):
     preambleLength = 0
 
     #process = Popen(['agda', '--interaction'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    process = pexpect.spawnu('swipl')
+    process = None # pexpect.spawnu('swipl')
 
     firstTime = True
 
     def startProlog(self):
-        if self.firstTime:
+
+        self.process = pexpect.spawnu('swipl')
+
+        #if self.firstTime:
+        if True:
             self.print(f'Waiting for prolog to start...')
 
             # skip to the 4th "?- "
@@ -49,12 +53,18 @@ class PrologKernel(Kernel):
             For built-in help, use ?- help(Topic). or ?- apropos(Word).
             '''
 
-            for i in range(4):
-                self.process.expect_exact('?- ') # process.expect takes a regular expression instead
+            #for i in range(4):
+            self.process.expect_exact('\n?- ') # process.expect takes a regular expression instead
 
             self.print(f'Prolog shell started!')
             self.firstTime = False
         return
+
+    def stopProlog(self):
+
+        if not (self.process is None):
+            self.process.terminate(force=True)
+            self.process = None
 
     def readPrologVersion(self):
         # swipl --version
@@ -74,10 +84,12 @@ class PrologKernel(Kernel):
 
     def interact(self, cmd):
 
+        self.startProlog()
+
         self.print("Interacting with Prolog: %s" % cmd)
 
         self.process.sendline(cmd)
-        self.process.expect_exact('?- ', timeout=120)
+        self.process.expect_exact('\n?- ', timeout=120)
         result = self.process.before
 
         # TODO: when there is an error as below, we need to look for "?" and send "a\n"
@@ -96,12 +108,14 @@ class PrologKernel(Kernel):
         ^  Call: (20) call(system:'$mt_end_load'(<clause>(0x7fd1bfe84370))) ? abort
         '''
 
+        self.print(f'Prolog replied: {result}')
+
         #skip the first line (it's a copy of cmd)
         result = result[result.index('\n')+1:]
         result = result.strip() # remove whitespaces and newlines from beginning and end
 
         #result = result.decode()
-        self.print(f'Prolog replied: {result}')
+        
 
         #result = {}
         # TODO: ad parsing of errors and warnings such as
@@ -117,6 +131,7 @@ class PrologKernel(Kernel):
             Goal (directive) failed: user:p(_9850)
         '''
 
+        self.stopProlog()
         return result
 
     # return line and column of an position in a string
@@ -180,8 +195,6 @@ class PrologKernel(Kernel):
         return
 
     def do_execute(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False):
-
-        self.startProlog()
 
         self.fileName = self.getFileName(code)
         self.dirName = self.getDirName(code)
