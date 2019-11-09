@@ -17,30 +17,107 @@ class PrologKernel(Kernel):
         'file_extension': '.pl',
     }
 
+    prolog_version = ""
     banner = "Prolog kernel"
     cells = {}
     last_code = ""
-
-    prolog_version = ""
-
     notebookName = ""
     cellId = ""
     preamble = ""
+    fileName = ""
+    moduleName = ""
+    dirName = ""
+    absoluteFileName = ""
+    preambleLength = 0
 
     #process = Popen(['agda', '--interaction'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    #process = pexpect.spawnu('agda --interaction')
+    process = pexpect.spawnu('swipl')
 
-    #firstTime = True
+    firstTime = True
 
-    #def startAgda(self):
-    #    if self.firstTime:
-    #        self.process.expect('Agda2> ')
-    #        self.firstTime = False
-    #    return
+    def startProlog(self):
+        if self.firstTime:
+            self.print(f'Waiting for prolog to start...')
+
+            # skip to the 4th "?- "
+            '''
+            Welcome to SWI-Prolog (threaded, 64 bits, version 8.0.3)
+            SWI-Prolog comes with ABSOLUTELY NO WARRANTY. This is free software.
+            Please run ?- license. for legal details.
+
+            For online help and background, visit http://www.swi-prolog.org
+            For built-in help, use ?- help(Topic). or ?- apropos(Word).
+            '''
+
+            for i in range(4):
+                self.process.expect_exact('?- ') # process.expect takes a regular expression instead
+
+            self.print(f'Prolog shell started!')
+            self.firstTime = False
+        return
+
+    def readPrologVersion(self):
+        # swipl --version
+        # SWI-Prolog version 8.0.3 for x86_64-darwin
+        p = pexpect.spawn('swipl --version')
+        p.expect(pexpect.EOF)
+        result = str(p.before)
+        tokens = result.split(" ")
+        version = tokens[2] # remove initial "SWI-Prolog version "
+        #version = version[:-5] # remove trailing "\r\n"
+        self.print(f'Detected Prolog version: {version}')
+        return version
 
     def __init__(self, **kwargs):
         Kernel.__init__(self, **kwargs)
-        #self.agda_version = self.readAgdaVersion()
+        self.prolog_version = self.readPrologVersion()
+
+    def interact(self, cmd):
+
+        self.print("Interacting with Prolog: %s" % cmd)
+
+        self.process.sendline(cmd)
+        self.process.expect_exact('?- ', timeout=120)
+        result = self.process.before
+
+        # TODO: when there is an error as below, we need to look for "?" and send "a\n"
+        '''
+        ERROR: No permission to load source `'/Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl'' (Non-module file already loaded into module user; trying to load into test)
+        ERROR: In:
+        ERROR:   [22] throw(error(permission_error(load,source,'/Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl'),context(...,'Non-module file already loaded into module user; trying to load into test')))
+        ERROR:   [20] '$assert_load_context_module'('/Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl',test,[expand(false),...]) at /usr/local/Cellar/swi-prolog/8.0.3_1/libexec/lib/swipl/boot/init.pl:2589
+        ERROR:   [19] '$mt_do_load'(<clause>(0x7fd1bfe84370),test,'/Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl',test,[expand(false),...]) at /usr/local/Cellar/swi-prolog/8.0.3_1/libexec/lib/swipl/boot/init.pl:2186
+        ERROR:   [18] setup_call_catcher_cleanup(system:with_mutex('$load_file',...),system:'$mt_do_load'(<clause>(0x7fd1bfe84370),test,'/Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl',test,...),_10992,system:'$mt_end_load'(<clause>(0x7fd1bfe84370))) at /usr/local/Cellar/swi-prolog/8.0.3_1/libexec/lib/swipl/boot/init.pl:468
+        ERROR:   [15] '$load_file'(test,test,[expand(false),...]) at /usr/local/Cellar/swi-prolog/8.0.3_1/libexec/lib/swipl/boot/init.pl:2074
+        ERROR:    [7] <user>
+        ERROR:
+        ERROR: Note: some frames are missing due to last-call optimization.
+        ERROR: Re-run your program in debug mode (:- debug.) to get more detail.
+        ^  Call: (20) call(system:'$mt_end_load'(<clause>(0x7fd1bfe84370))) ? abort
+        '''
+
+        #skip the first line (it's a copy of cmd)
+        result = result[result.index('\n')+1:]
+        result = result.strip() # remove whitespaces and newlines from beginning and end
+
+        #result = result.decode()
+        self.print(f'Prolog replied: {result}')
+
+        #result = {}
+        # TODO: ad parsing of errors and warnings such as
+
+        '''
+        Warning: /Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl:5:
+            Singleton variables: [X]
+        ERROR: /Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl:5:
+            catch/3: Undefined procedure: p/1
+            However, there are definitions for:
+                    p/2
+        Warning: /Users/lorenzo/Google Drive/dev/prolog-kernel/test.pl:5:
+            Goal (directive) failed: user:p(_9850)
+        '''
+
+        return result
 
     # return line and column of an position in a string
     def line_of(self, s, n):
@@ -68,21 +145,24 @@ class PrologKernel(Kernel):
         else:
             return -1, -1
 
-    def getSrcFileName(self, code):
-
+    def getModuleName(self, code):
         code = self.removeComments(code)
         lines = code.split('\n')
 
-        #look for the first line matching ":- module(MODULENAME)"
+        #look for the first line matching ":- module(MODULENAME)."
         for line in lines:
-            if bool(re.match(r':- *module([a-zA-Z0-9.\-]*) *', line)):
-                # fileName = "tmp/" + re.sub(r"-- *", "", firstLine)
-                moduleName = re.sub(r'module *( *', "", line) # delete prefix
-                moduleName = re.sub(r' * ) *', "", moduleName) # delete suffix
-
+            match = re.search(r':- *module *\(([a-zA-Z0-9.\-]*), *\[.*\]\) *\.', line)
+            if match:
+                moduleName = match.group(1)
+                self.print(f'Detected module: {moduleName}')
                 return moduleName
 
+        self.print(f'No module detected')
         return ""
+
+    def getFileName(self, code):
+        moduleName = self.getModuleName(code)
+        return moduleName + ".pl" if moduleName != "" else ""
 
     def getFileName(self, code):
 
@@ -101,12 +181,14 @@ class PrologKernel(Kernel):
 
     def do_execute(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False):
 
-        fileName = self.getFileName(code)
-        dirName = self.getDirName(code)
-        moduleName = self.getModuleName(code)
-        absoluteFileName = os.path.abspath(fileName)
+        self.startProlog()
 
-        preambleLength = 0
+        self.fileName = self.getFileName(code)
+        self.dirName = self.getDirName(code)
+        self.moduleName = self.getModuleName(code)
+        self.absoluteFileName = os.path.abspath(self.fileName)
+        self.preambleLength = 0
+        error = False
 
         self.print(f'user_expressions: {user_expressions}')
         self.print(f'executing code: {code}')
@@ -122,65 +204,58 @@ class PrologKernel(Kernel):
 
             if "preamble" in user_expressions:
                 self.preamble = user_expressions["preamble"]
-            else
+            else:
                 self.preamble = ":- module(test)."
 
-        notebookName = self.notebookName
-        cellId = self.cellId
-        preamble = self.preamble
-
-        self.print(f'detected fileName: {fileName}, dirName: {dirName}, moduleName: {moduleName}, notebookName: {notebookName}, cellId: {cellId}, preamble: {preamble}')
+        self.print(f'detected fileName: {self.fileName}, dirName: {self.dirName}, moduleName: {self.moduleName}, notebookName: {self.notebookName}, cellId: {self.cellId}, preamble: {self.preamble}')
 
         # use the provided preamble only if the module name is missing
-        if fileName == "":
+        #if fileName == "":
 
             # if no line \"module [modulename] where\" is provided,
             # we create a standard one ourselves
-            preambleLength = len(preamble.split("\n")) - 1
-            new_code = preamble + code
+        #    preambleLength = len(preamble.split("\n")) - 1
+        #    new_code = preamble + code
 
-            fileName = self.getFileName(new_code)
-            dirName = self.getDirName(new_code)
-            moduleName = self.getModuleName(new_code)
-            absoluteFileName = os.path.abspath(fileName)
-            self.print(f'redetected fileName: {fileName}, dirName: {dirName}, moduleName: {moduleName}, notebookName: {notebookName}, cellId: {cellId}, new code: {new_code}')
+        #    fileName = self.getFileName(new_code)
+        #    dirName = self.getDirName(new_code)
+        #    moduleName = self.getModuleName(new_code)
+        #    absoluteFileName = os.path.abspath(fileName)
+        #    self.print(f'redetected fileName: {fileName}, dirName: {dirName}, moduleName: {moduleName}, notebookName: {notebookName}, cellId: {cellId}, new code: {new_code}')
 
-            code = new_code
+        #    code = new_code
 
-        self.fileName = fileName
-        lines = code.split('\n')
-        numLines = len(lines)
+        if self.moduleName != "":
+            lines = code.split('\n')
+            numLines = len(lines)
 
-        #self.print("file: %s" % fileName)
+            #self.print("file: %s" % fileName)
 
-        if dirName != "" and not os.path.exists(dirName):
-            os.makedirs(dirName)
+            if self.dirName != "" and not os.path.exists(self.dirName):
+                os.makedirs(self.dirName)
 
-        fileHandle = open(fileName, "w+")
+            fileHandle = open(self.fileName, "w+")
 
-        for i in range(numLines):
-            fileHandle.write("%s\n" % lines[i])
+            for i in range(numLines):
+                fileHandle.write("%s\n" % lines[i])
 
-        fileHandle.close()
+            fileHandle.close()
 
-        #subprocess.run(["agda", fileName])
-        #result = os.popen("agda %s" % fileName).read()
+            query = f'[{self.moduleName}].\n'
+            result = self.interact(query)
 
-        outputFileName = "./output.txt"
+            if result == "":
+                result = "OK"
 
-        os.system(f"swipl {fileName} > {outputFileName} 2>&1")
-        
-        l = open(outputFileName, 'r')
-        result = l.readlines()[:-8] # skip the last 8 lines
-        
-        if result == "":
-            result = "OK"
+            #save the result of the last evaluation
+            self.cells[self.fileName] = result
 
-        #save the result of the last evaluation
-        self.cells[fileName] = result
+            # save the code that was executed
+            self.code = code
 
-        # save the code that was executed
-        self.code = code
+        else:
+            error = True
+            result = 'The first line of a cell code should be of the form ":- module(module_name, [... exported symbols ...])."'
 
         if not silent:
             stream_content = {'name': 'stdout', 'text': result}
@@ -190,9 +265,9 @@ class PrologKernel(Kernel):
                 self.print("Ignoring call to self.send_response")
 
         user_expressions = {
-            "fileName": absoluteFileName,
-            "moduleName": moduleName,
-            "preambleLength" : preambleLength,
+            "fileName": self.absoluteFileName,
+            "moduleName": self.moduleName,
+            "preambleLength" : self.preambleLength,
             "isError": error
         }
 
