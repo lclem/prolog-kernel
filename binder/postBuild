@@ -17,6 +17,6 @@ jupyter serverextension enable --py jupyterlab --sys-prefix
 # change theme with jupyter-themes
 jt -t grade3 -f roboto -fs 10 -cellw 800 -altp -T
 
-sudo add-apt-repository ppa:swi-prolog/stable
-sudo apt-get update
-sudo apt-get install swi-prolog
+add-apt-repository ppa:swi-prolog/stable
+apt-get update
+apt-get install swi-prolog
