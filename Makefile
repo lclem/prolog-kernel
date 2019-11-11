@@ -9,10 +9,10 @@ $(info CODEMIRROR-PROLOG: $(CODEMIRROR-PROLOG))
 
 all: build install codemirror-install # kernel-install
 
-test: build install kernel-install codemirror-install
+#test: build install kernel-install codemirror-install
 	#jupyter nbconvert --to notebook --execute example/Example.ipynb  --output Example-output.ipynb
 	
-pytest: install
+test: install
 	pytest
 
 build: dist/prolog_kernel-0.1-py3-none-any.whl

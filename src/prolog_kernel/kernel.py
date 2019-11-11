@@ -191,6 +191,42 @@ class PrologKernel(Kernel):
         prefixName = moduleName[:last]
         return prefixName.replace(".", "/") if last != -1 else ""
 
+    # extract errors and warnings from the result
+    """Warning: /Users/lorenzo/Google Drive/dev/jupyterlab-prolog/examples/test.pl:7:
+	Singleton variables: [Y]
+    ERROR: /Users/lorenzo/Google Drive/dev/jupyterlab-prolog/examples/test.pl:8:9: Syntax error: Operator priority clash"""
+
+    def responseParser(self, str):
+        lines = str.split("\n")
+
+        e_warning = re.compile('Warning: [^:]*:([0-9]*):')
+        e_error = re.compile('ERROR: [^:]*:([0-9]*):([0-9]*):')
+
+        errors = []
+        warnings = []
+
+        for line in lines:
+
+            #self.print(f"analysing line: {line}")
+            m = e_warning.search(line)
+            #self.print(f"match: {m}")
+            if bool(m):
+                lineno = int(m.group(1)) # extract the first match group
+                warnings.append(lineno)
+                self.print(f"warning line number: {lineno}")
+                continue
+            
+            m = e_error.search(line)
+            #self.print(f"match: {m}")
+            if bool(m):
+                lineno = int(m.group(1)) # extract the first match group
+                colno = int(m.group(2)) # extract the second match
+                errors.append((lineno, colno))
+                self.print(f"error line number: {lineno}, column number: {colno}")
+                continue
+
+        return errors, warnings
+
     def do_shutdown(self, restart):
         return
 
@@ -271,33 +307,7 @@ class PrologKernel(Kernel):
             self.code = code
 
             # extract errors and warnings from the result
-            """Warning: /Users/lorenzo/Google Drive/dev/jupyterlab-prolog/examples/test.pl:7:
-	Singleton variables: [Y]"""
-
-            """ERROR: /Users/lorenzo/Google Drive/dev/jupyterlab-prolog/examples/test.pl:8:9: Syntax error: Operator priority clash"""
-
-            lines = result.split("\n")
-
-            e_warning = re.compile('Warning: [^:]*:([0-9]*):')
-            e_error = re.compile('ERROR: [^:]*:([0-9]*):([0-9]*):')
-
-            for line in lines:
-
-                #self.print(f"analysing line: {line}")
-                m = e_warning.search(line)
-                #self.print(f"match: {m}")
-                if bool(m):
-                    lineno = m.group(1) # extract the first match group
-                    self.print(f"warning line number: {lineno}")
-                    continue
-                
-                m = e_error.search(line)
-                #self.print(f"match: {m}")
-                if bool(m):
-                    lineno = m.group(1) # extract the first match group
-                    colno = m.group(2) # extract the second match
-                    self.print(f"error line number: {lineno}, column number: {colno}")
-                    continue
+            errors, warnings = self.responseParser(result)
 
         else:
             error = True
