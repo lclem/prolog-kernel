@@ -70,7 +70,7 @@ jobs:
       #- timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
       #- timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
       #- timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
-      - browsh --startup-url https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab --time-limit 300
+      - browsh --startup-url https://mybinder.org/v2/gh/lclem/prolog-kernel/master --time-limit 500
     after_success: skip
     
 notifications:
