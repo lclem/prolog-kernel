@@ -54,6 +54,8 @@ jobs:
       - sudo apt-get install -y links lynx firefox
       - sudo wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64.deb
       - sudo apt install ./browsh_1.6.4_linux_amd64.deb
+      - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_arm64
+      - mv browsh_1.6.4_linux_arm64 browsh && chmod a+x browsh
     install: skip
     script:
       # attempt to update mybinder
@@ -66,7 +68,7 @@ jobs:
       #- timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
       #- timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
       #- timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
-      - timeout 10s browsh https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      - timeout 10s ./browsh https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
     after_success: skip
     
 notifications:
