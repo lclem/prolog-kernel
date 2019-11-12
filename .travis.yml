@@ -51,19 +51,20 @@ jobs:
     sudo: required
     before_install:
       - sudo apt-get update
-      - sudo apt-get install -y links lynx
+      - sudo apt-get install -y links lynx firefox browsh
     install: skip
     script:
       # attempt to update mybinder
-      - bash binder/trigger_binder.sh https://mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - bash binder/trigger_binder.sh https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - bash binder/trigger_binder.sh https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - ( printf "q"; sleep 10; printf "\n" ) | links https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - ( printf "q"; sleep 10; printf "\n" ) | links https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
-      - timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
-      - timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      #- bash binder/trigger_binder.sh https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- bash binder/trigger_binder.sh https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- bash binder/trigger_binder.sh https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- ( printf "q"; sleep 10; printf "\n" ) | links https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- ( printf "q"; sleep 10; printf "\n" ) | links https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+      #- timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      #- timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      #- timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      - timeout 10s browsh https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
     after_success: skip
     
 notifications:
