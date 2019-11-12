@@ -51,7 +51,9 @@ jobs:
     sudo: required
     before_install:
       - sudo apt-get update
-      - sudo apt-get install -y links lynx firefox browsh
+      - sudo apt-get install -y links lynx firefox
+      - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64.deb
+      - sudo apt install ./browsh_1.6.4_linux_amd64.deb
     install: skip
     script:
       # attempt to update mybinder
