@@ -49,7 +49,7 @@ after_success:
   - ls
   - git add screenshot.png
   - git commit -a -m "screenshot"
-  - git push
+  - git push origin
 
   #print a dot every 2 seconds
   #>/dev/null 2>&1 & (echo pid is $!; while kill -0 $!; do sleep 2; echo -n .; done)
