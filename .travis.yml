@@ -61,9 +61,9 @@ jobs:
       - ( printf "q"; sleep 10; printf "\n" ) | links https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
       - ( printf "q"; sleep 10; printf "\n" ) | links https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
       - ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
-      - timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
-      - timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
+      - timeout 10s lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      - timeout 10s lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
+      - timeout 10s lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab || echo FINISHED
     after_success: skip
     
 notifications:
