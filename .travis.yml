@@ -14,7 +14,7 @@ before_install:
 - sudo apt-get install software-properties-common
 - sudo apt-add-repository -y ppa:swi-prolog/stable
 - sudo apt-get update
-- sudo apt-get install -y links swi-prolog
+- sudo apt-get install -y links lynx swi-prolog
 
 install:
 - pip install -r requirements.txt
