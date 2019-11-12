@@ -52,8 +52,9 @@ jobs:
     before_install:
       - sudo apt-get update
       - sudo apt-get install -y links lynx firefox
-      - sudo wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64.deb
-      - sudo apt install ./browsh_1.6.4_linux_amd64.deb
+      # does not seem to work
+      #- sudo wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64.deb
+      #- sudo apt install ./browsh_1.6.4_linux_amd64.deb
       - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64
       - mv browsh_1.6.4_linux_amd64 browsh && chmod a+x browsh
     install: skip
