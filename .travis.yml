@@ -36,7 +36,7 @@ after_script:
 
 # Push the results back to codecov
 after_success:
-  - codecov
+  # - codecov
   # trigger mybinder
   - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64
   - mv browsh_1.6.4_linux_amd64 browsh && chmod a+x browsh
