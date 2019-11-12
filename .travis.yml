@@ -54,8 +54,8 @@ jobs:
       - sudo apt-get install -y links lynx firefox
       - sudo wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64.deb
       - sudo apt install ./browsh_1.6.4_linux_amd64.deb
-      - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_arm64
-      - mv browsh_1.6.4_linux_arm64 browsh && chmod a+x browsh
+      - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64
+      - mv browsh_1.6.4_linux_amd64 browsh && chmod a+x browsh
     install: skip
     script:
       # attempt to update mybinder
