@@ -61,9 +61,9 @@ jobs:
       - ( printf "q"; sleep 10; printf "\n" ) | links https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
       - ( printf "q"; sleep 10; printf "\n" ) | links https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master
       - ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
-      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
-      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
-      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
+      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -
+      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -
+      - ( sleep 1; printf "q"; sleep 2; printf "y" ) | lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -
     after_success: skip
     
 notifications:
