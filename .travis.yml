@@ -40,7 +40,7 @@ after_success:
   # attempt to update mybinder
   #- wget https://mybinder.org/v2/gh/lclem/prolog-kernel/master
   # - chmod a+x ./trigger_mybinder.sh && ./trigger_mybinder.sh
-  - ( printf "q"; sleep 10 ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+  - ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
   
 #deploy:
 #  provider: pypi
