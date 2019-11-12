@@ -7,15 +7,12 @@ function trigger_binder() {
     curl_return=$?
 
     # Return code 28 is when the --max-time is reached
-    if [ "${curl_return}" -eq 0 ] || [ "${curl_return}" -eq 28 ]; then
-        if [[ "${curl_return}" -eq 28 ]]; then
-            printf "\nBinder build started.\nCheck back soon.\n"
-        fi
+    if [[ "${curl_return}" -eq 28 ]]; then
+        printf "\nBinder build started.\nCheck back soon.\n"
     else
+        printf "\nBinder build NOT started .\n"
         return "${curl_return}"
     fi
-
-    return 0
 }
 
 function main() {
