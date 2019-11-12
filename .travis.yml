@@ -41,6 +41,7 @@ after_success:
   #- wget https://mybinder.org/v2/gh/lclem/prolog-kernel/master
   # - chmod a+x ./trigger_mybinder.sh && ./trigger_mybinder.sh
   - ( printf "q"; sleep 10; printf "\n" ) | links https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+  - ( sleep 10; printf "q"; sleep 10; printf "y" ) | lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab
   
 #deploy:
 #  provider: pypi
