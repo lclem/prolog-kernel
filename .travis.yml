@@ -11,7 +11,7 @@ python:
 - '3.8'
 
 before_install:
-- sudo apt-get install -y links swipl
+- sudo apt-get install -y links swi-prolog
 
 install:
 - pip install -r requirements.txt
