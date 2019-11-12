@@ -22,7 +22,7 @@ install:
 
 before_script:
 - export CODECOV_TOKEN="8569eb0e-1db5-42dd-adeb-046fd6247600"
-- swipl --version
+#- swipl --version
 
 script:
 - pip install .
@@ -50,8 +50,7 @@ jobs:
   - stage: binder
     before_install: skip
     install: skip
-    script: skip
-    after_success:
+    script:
       # attempt to update mybinder
       - bash binder/trigger_binder.sh https://mybinder.org/v2/gh/lclem/prolog-kernel/master
       - bash binder/trigger_binder.sh https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master
@@ -62,8 +61,7 @@ jobs:
       - ( sleep 10; printf "q"; sleep 10; printf "y" ) | lynx https://mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -stdin
       - ( sleep 10; printf "q"; sleep 10; printf "y" ) | lynx https://gke.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -stdin
       - ( sleep 10; printf "q"; sleep 10; printf "y" ) | lynx https://ovh.mybinder.org/v2/gh/lclem/prolog-kernel/master?urlpath=lab -stdin
-
-
+    after_success: skip
     
 notifications:
   email: false
