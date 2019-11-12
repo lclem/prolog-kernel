@@ -3,4 +3,4 @@
 [![Build Status](https://travis-ci.org/lclem/prolog-kernel.svg)](https://travis-ci.org/lclem/prolog-kernel)
 
 # prolog-kernel
-An simple Jupyter kernel for prolog
+A simple Jupyter kernel for SWI-prolog.
