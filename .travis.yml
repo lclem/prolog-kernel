@@ -21,22 +21,22 @@ install:
 - pip install codecov pytest pytest-cov
 
 before_script:
-- export CODECOV_TOKEN="8569eb0e-1db5-42dd-adeb-046fd6247600"
-#- swipl --version
+- export CODECOV_TOKEN="2ce5ed4d-915c-471a-a2a6-9cbfdd325aef"
+- swipl --version
 
 script:
 - pip install .
 - make test
 - pytest --cov
-#- coverage xml src/tests/test_basic.py
-#- coverage html src/tests/test_basic.py
+- coverage xml src/tests/test_basic.py
+- coverage html src/tests/test_basic.py
 
 after_script: 
 #- cd ~
 
 # Push the results back to codecov
 after_success:
-  # - codecov
+  - codecov
   # trigger mybinder
   - firefox -headless --screenshot https://mybinder.org/v2/gh/lclem/prolog-kernel/master
   
