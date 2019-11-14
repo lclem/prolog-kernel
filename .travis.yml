@@ -30,8 +30,6 @@ script:
 - pytest --cov
 - coverage xml src/tests/test_basic.py
 - coverage html src/tests/test_basic.py
-- firefox -headless --screenshot https://mybinder.org/v2/gh/lclem/prolog-kernel/master
-- mv screenshot.png docs/
 
 after_script: 
 #- cd ~
