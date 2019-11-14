@@ -1,0 +1,2 @@
+jupyter
+git+https://github.com/lclem/jupyter_contrib_nbextensions
