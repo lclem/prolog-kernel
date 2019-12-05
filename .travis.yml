@@ -1,0 +1,78 @@
+sudo: required
+dist: xenial
+language: python
+virtualenv:
+
+python:
+#- '3.6'
+#- 3.6-dev
+#- '3.7'
+#- 3.7-dev
+- '3.8'
+
+before_install:
+- sudo apt-get install software-properties-common
+- sudo apt-add-repository -y ppa:swi-prolog/stable
+- sudo apt-get update
+- sudo apt-get install -y links lynx firefox swi-prolog
+
+install:
+- pip install -r requirements.txt
+- pip install codecov pytest pytest-cov
+
+before_script:
+- export CODECOV_TOKEN="2ce5ed4d-915c-471a-a2a6-9cbfdd325aef"
+- swipl --version
+
+script:
+- pip install .
+- make test
+- pytest --cov
+- coverage xml src/tests/test_basic.py
+- coverage html src/tests/test_basic.py
+
+after_script: 
+#- cd ~
+
+# Push the results back to codecov
+after_success:
+  - codecov
+  # trigger mybinder
+  - firefox -headless --screenshot https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+  
+  # do the same with browsh
+  - wget https://github.com/browsh-org/browsh/releases/download/v1.6.4/browsh_1.6.4_linux_amd64
+  - mv browsh_1.6.4_linux_amd64 browsh && chmod a+x browsh
+  #- ./browsh --startup-url https://mybinder.org/v2/gh/lclem/prolog-kernel/master --time-limit 800
+
+  - firefox -headless --screenshot https://mybinder.org/v2/gh/lclem/prolog-kernel/master
+  - ls
+  - mv screenshot.png docs/
+  - git add docs/screenshot.png
+  - git commit -a -m "added screenshot"
+  - git config --global user.email "travis@travis-ci.org"
+  - git config --global user.name "Travis CI"
+  - git remote add origin-pages https://${GITHUB_TOKEN}@github.com/lclem/prolog-kernel.git
+#  - git push origin HEAD:master
+
+  #print a dot every 2 seconds
+  #>/dev/null 2>&1 & (echo pid is $!; while kill -0 $!; do sleep 2; echo -n .; done)
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  on:
+    branch: master
+    
+#deploy:
+#  provider: pypi
+#  skip_existing: true
+#  user: "lorenzo"
+#  pas
+    
+notifications:
+  email: false
+  
+  
