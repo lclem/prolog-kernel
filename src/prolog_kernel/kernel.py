@@ -317,6 +317,7 @@ class PrologKernel(Kernel):
         if not silent:
             stream_content = {'name': 'stdout', 'text': result}
             try:
+                # send the result to Jupyter
                 self.send_response(self.iopub_socket, 'stream', stream_content)
             except AttributeError: # during testing there is no such method, just ignore
                 self.print("Ignoring call to self.send_response")
